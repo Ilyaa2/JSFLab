@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+
+<f:view>
+    <h:head>
+        <title>My site</title>
+        <h:outputStylesheet library="css" name="style.css"/>
+    </h:head>
+
+    <h:body>
+        <p:button value="Go back" outcome="index"/>
+
+        <canvas id="canvas" style="border:1px solid #000000; display: block; margin: 0 auto;" width="500" height="500"/>
+        <div id="form">
+            <h:form id="coords_form">
+                <h3>Enter X value</h3>
+                <p:selectOneButton value="#{entryBean.entry.x}" id="button_x" required="true"
+                                   requiredMessage="You must enter X">
+                    <f:selectItem itemLabel="-3" itemValue="-3"/>
+                    <f:selectItem itemLabel="-2" itemValue="-2"/>
+                    <f:selectItem itemLabel="-1" itemValue="-1"/>
+                    <f:selectItem itemLabel="0" itemValue="0"/>
+                    <f:selectItem itemLabel="1" itemValue="1"/>
+                    <f:selectItem itemLabel="2" itemValue="2"/>
+                    <f:selectItem itemLabel="3" itemValue="3"/>
+                    <f:selectItem itemLabel="4" itemValue="4"/>
+                    <f:selectItem itemLabel="5" itemValue="5"/>
+                    <p:message for="button_x" style="color:red" rendered="true" id="msg1"/>
+                </p:selectOneButton>
+
+                <br/>
+                <br/>
+                <br/>
+
+                <h3>Enter Y</h3><p:inputText value="#{entryBean.entry.y}" id="input_y" required="true"
+                                             requiredMessage="Can't be empty"
+                                             converterMessage="The value must be a number">
+                <f:validator validatorId="validator_y"/>
+            </p:inputText>
+                <p:message for="input_y" style="color:red" rendered="true" id="msg2"/>
+
+                <br/>
+                <br/>
+                <br/>
+
+                <h3>Enter R value</h3>
+
+                <h:panelGrid columns="1" style="margin-bottom: 10px">
+                    <h:inputHidden id="r" value="#{entryBean.entry.r}" required="true"
+                                   requiredMessage="Can't be empty">
+                        <f:validator validatorId="validator_r"/>
+                    </h:inputHidden>
+                    <h:outputText id="output" value="Set ratio to #{entryBean.entry.r}"/>
+                    <p:slider for="r" minValue="1" maxValue="4" step="0.5" style="width: 200px"
+                              id="slider" display="output" displayTemplate="Set ratio to {value}" onSlideEnd="go()">
+                    </p:slider>
+                    <p:message for="r" style="color:red" rendered="true" id="msg3"/>
+                </h:panelGrid>
+
+                <p:commandButton id="submit-button" value="Go" action="#{entryBean.addEntry}"
+                                 update="msg1 msg2 msg3 results input_y" onsuccess="drawPoint()">
+                </p:commandButton>
+
+                <p:remoteCommand name="addPoint" actionListener="#{entryBean.addEntryWithParameters}"
+                                 update="results input_y"/>
+                <p:remoteCommand name="getVerdict" actionListener="#{entryBean.sendVerdict}"
+                                 update="results input_y"/>
+            </h:form>
+
+            <div class="result-table_container">
+                <h:dataTable id="results" styleClass="result-table" value="#{entryBean.entriesBean.list}" var="entr">
+                    <h:column headerClass="result-table__column result-table__column_coords">
+                        <f:facet name="header">X</f:facet>
+                        <h:outputText value="#{entr.x}"/>
+                    </h:column>
+                    <h:column headerClass="result-table__column result-table__column_coords">
+                        <f:facet name="header">Y</f:facet>
+                        <h:outputText value="#{entr.y}"/>
+                    </h:column>
+                    <h:column headerClass="result-table__column result-table__column_coords">
+                        <f:facet name="header">R</f:facet>
+                        <h:outputText value="#{entr.r}"/>
+                    </h:column>
+                    <h:column headerClass="result-table__column result-table__column_hitres">
+                        <f:facet name="header">Result</f:facet>
+                        <h:outputText value="#{entr.verdict}"/>
+                    </h:column>
+                </h:dataTable>
+            </div>
+        </div>
+        <script type="text/javascript" src="#{request.contextPath}/resources/js/canvas.js"></script>
+    </h:body>
+</f:view>
+</html>
+
+
+

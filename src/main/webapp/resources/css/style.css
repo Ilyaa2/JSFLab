@@ -1,0 +1,60 @@
+#header{
+    display: block;
+    width: 100%;
+    margin-bottom: 50px;
+}
+
+.header_elem{
+    margin-left: 10%;
+}
+
+.red{
+    background-color:rgb(255, 81, 0);
+}
+
+.green{
+    background-color: rgb(0, 255, 0);
+}
+
+#results{
+    margin: 0 auto;
+    margin-top: 40px;
+    border: 1px solid black;
+}
+
+.result-table tr, .result-table td, .result-table th{
+    border: 1px solid black;
+    /*font-size: 23px;*/
+}
+
+#form{
+    max-width: 27%;
+    display: block;
+    margin:0 auto;
+}
+
+#j_idt6{
+    display: block;
+    margin: 20px auto;
+}
+
+body{
+    background-color: bisque;
+}
+
+#container{
+    max-width: 40%;
+    margin: 0 auto;
+}
+
+.datetime{
+    display: block;
+    margin: 20px auto;
+    max-width: fit-content;
+}
+
+#main_button{
+    display: block;
+    margin: 0 auto;
+
+}

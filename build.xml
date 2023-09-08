@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<project name="JSFProject" default="build">
+    <loadproperties srcfile="ant.properties"/>
+    <taskdef resource="net/sf/antcontrib/antlib.xml">
+        <classpath>
+            <pathelement location="lib/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+
+    <path id="classpath.source">
+        <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </path>
+
+    <target name="compile">
+        <mkdir dir="${compiled.classes}"/>
+        <mkdir dir="${compiled.tests}"/>
+        <javac destdir="${compiled.classes}" includeantruntime="false" srcdir="${main}">
+            <classpath>
+                <pathelement location="${compiled.classes}"/>
+                <path refid="classpath.source"/>
+                <pathelement location="src/main/resources/META-INF"/>
+                <pathelement location="src/main/webapp/WEB-INF"/>
+            </classpath>
+            <classpath refid="classpath.source"/>
+        </javac>
+        <javac destdir="${compiled.tests}" includeantruntime="false">
+            <src path="${test}"/>
+            <classpath>
+                <pathelement location="${compiled.classes}"/>
+                <path refid="classpath.source"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="build" depends="compile">
+        <war destfile="${my.war}" webxml="${main}/webapp/WEB-INF/web.xml">
+            <classes dir="${compiled.classes}"/>
+            <lib dir="${lib.dir}"/>
+            <fileset dir="${main}/webapp/"/>
+            <fileset dir="${main}/resources/"/>
+            <manifest>
+                <attribute name="Created-By" value="Web"/>
+                <attribute name="Manifest-Version" value="1.0"/>
+                <attribute name="Main-Class" value="NoClass"/>
+            </manifest>
+        </war>
+    </target>
+
+    <target name="test" depends="build">
+        <junit fork="true" printsummary="on" haltonerror="on">
+            <formatter type="plain"/>
+            <classpath>
+                <path refid="classpath.source"/>
+                <pathelement location="${compiled.classes}"/>
+                <pathelement location="${compiled.tests}"/>
+            </classpath>
+            <batchtest haltonerror="on">
+                <fileset dir="${test}" includes="*Test*.java"/>
+            </batchtest>
+        </junit>
+        <echo message="All tests are passed"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${build}" verbose="true"/>
+        <delete dir="${zip}" verbose="true"/>
+        <delete dir="${tmp}" verbose="true" />
+        <delete file="${build}"/>
+        <delete file="${zip}"/>
+        <delete file="${tmp}"/>
+        <delete file="TEST-AreaTest.txt"/>
+        <echo message="---All temporary files are deleted---"/>
+    </target>
+
+    <target name="history">
+        <mkdir dir="${tmp}"/>
+        <trycatch>
+            <try>
+                <runtarget target="compile"/>
+
+                <exec executable="git">
+                    <arg value="stash"/>
+                </exec>
+                <exec executable="git">
+                    <arg value="checkout"/>
+                    <arg value="master"/>
+                </exec>
+                <echo message="--- NO ERRORS, COMPILE DONE ---"/>
+            </try>
+            <catch>
+                <exec executable="git">
+                    <arg value="stash"/>
+                </exec>
+                <exec executable="git">
+                    <arg value="checkout"/>
+                    <arg value="HEAD~1"/>
+                </exec>
+                <exec executable="git" output="tmp/info">
+                    <arg value="diff"/>
+                    <arg value="HEAD"/>
+                    <arg value="HEAD~1"/>
+                </exec>
+
+                <runtarget target="history"/>
+            </catch>
+        </trycatch>
+    </target>
+
+    <target name="team">
+        <mkdir dir="${zip}"/>
+        <exec executable="git">
+            <arg value="checkout"/>
+            <arg value="HEAD~1"/>
+        </exec>
+        <runtarget target="build"/>
+        <copy file="${my.war}" tofile="${zip}/v1.war"/>
+
+        <exec executable="git">
+            <arg value="stash"/>
+        </exec>
+
+        <exec executable="git">
+            <arg value="checkout"/>
+            <arg value="HEAD~1"/>
+        </exec>
+        <runtarget target="build"/>
+        <copy file="${my.war}" tofile="${zip}/v2.war"/>
+
+        <zip destfile="${zip}/two_wars.zip" basedir="zip"/>
+    </target>
+
+    <target name="diff">
+
+        <exec executable="git" outputproperty="git.diff">
+            <arg value="diff"/>
+            <arg value="HEAD"/>
+            <arg value="${main}/java"/>
+        </exec>
+
+        <if>
+            <length string="${git.diff}" when="greater" length="0"/>
+            <then>
+                <echo message="${git.diff}"/>
+                <exec executable="git">
+                    <arg value="add"/>
+                    <arg value="${main}/java"/>
+                </exec>
+
+                <exec executable="git">
+                    <arg value="commit"/>
+                    <arg value="-m"/>
+                    <arg value="Changed Classes"/>
+                </exec>
+            </then>
+        </if>
+    </target>
+
+
+    <target name="music" depends="build">
+        <exec executable="${media.player}">
+            <arg value="${music.file}"/>
+        </exec>
+    </target>
+
+    <target name="native2ascii">
+        <native2ascii src="${resources}" dest="${main}/asciiResources"
+                      includes="*.properties" ext=".properties"/>
+    </target>
+
+    <target name="scp" depends="build">
+        <exec executable="pscp">
+            <arg value="-pw"/>
+            <arg value="${pass}"/>
+            <arg value="-P"/>
+            <arg value="2222"/>
+            <arg value="${my.war}"/>
+            <arg value="${host}"/>
+        </exec>
+    </target>
+    <!--    scp -P 2222 <filename> sXXXXXX@helios.cs.ifmo.ru:/home/sXXXXXX-->
+    <!--    pscp -P 2222 D:/SomeFile.txt s335128@helios.cs.ifmo.ru:/home/studs/s335128/ant_storage-->
+</project>
