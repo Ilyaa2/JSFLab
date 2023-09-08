@@ -11,6 +11,7 @@ public class ReadProperties {
             properties.load(new FileInputStream("src\\main\\resources\\resources.properties"));
             return properties.getProperty(key);
         } catch (IOException e){
+            System.out.println("The error occurred, don't panic");
             e.printStackTrace();
         }
         return null;

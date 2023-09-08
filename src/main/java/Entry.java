@@ -83,6 +83,13 @@ public class Entry implements Serializable {
         return "x=" + x + ", y=" + y + ", r=" + r + "verdict=" + verdict;
     }
 
+    public boolean booleanVerdict(){
+        if (verdict == null) {
+            setVerdict(processVerdict(x,y,r));
+        }
+        return "INCLUDED".equals(verdict);
+    }
+
     public int getId() {
         return id;
     }

@@ -80,7 +80,7 @@ public class EntriesBean implements Serializable {
 
             transaction.commit();
         } catch (RuntimeException exception) {
-            System.out.println("error:" + exception.getMessage());
+            System.out.println("The error:" + exception.getMessage());
             if (transaction.isActive()){
                 transaction.rollback();
             }
